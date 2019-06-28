@@ -3,6 +3,13 @@ package com.gmail.sirojudinag.pertemuan12;
 import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -10,25 +17,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.view.View;
-import android.view.MenuItem;
-
-
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ListView;
-import android.widget.ArrayAdapter;
-
 public class MainActivity extends AppCompatActivity {
     EditText nama, telepon;
     TextView dataTelepon;
     Button tombolInput;
 
-    ListView listView;
-    ArrayAdapter<String>adapter;
+    ListView daftarTelepon;
+    ArrayAdapter<String> adapter;;
     ArrayList<String> arrayKontak;
+
 
 
     @Override
@@ -42,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
         telepon = (EditText) findViewById(R.id.editTelepon);
         dataTelepon = (TextView) findViewById(R.id.textDataTelp);
         tombolInput = (Button) findViewById(R.id.buttonInput);
+
+        daftarTelepon = findViewById(R.id.listDataTelp);
+        arrayKontak = new ArrayList<String>();
+
         //event pada tombol
         tombolInput.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +97,24 @@ public class MainActivity extends AppCompatActivity {
             byte[] bufTelepon = new byte[15];
             String infoData = "Data Telepon:\n";
             //proses membaca data
+            arrayKontak.clear();
+            int no = 1;
             while (input.available() > 0) {
+                input.read(bufNama);
+                input.read(bufTelepon);
+                String dataNama = "";
+                for (int i = 0; i < bufNama.length; i++)
+                    dataNama = dataNama + (char) bufNama[i];
+                String dataTelepon = "";
+                for (int i = 0; i < bufTelepon.length; i++)
+                    dataTelepon = dataTelepon + (char) bufTelepon[i];
+
+                //infoData = infoData + " > " + dataNama + " - " + dataTelepon + "\n";
+                infoData = no + ". " + dataNama + " - " + dataTelepon;
+                arrayKontak.add(infoData);
+                no++;
+
+          /*  while (input.available() > 0) {
                 input.read(bufNama);
                 input.read(bufTelepon);
                 String dataNama = "";
@@ -107,15 +125,18 @@ public class MainActivity extends AppCompatActivity {
                     dataTelepon = dataTelepon + (char) bufTelepon[i];
                 //format menampilkan data
                 infoData = infoData + " > " + dataNama + " - " +
-                        dataTelepon + "\n";
+                        dataTelepon + "\n"; */
 
             }
             //menampilkan data ke teks view
-            dataTelepon.setText(infoData);
+            //dataTelepon.setText(infoData);
             dataFile.close();
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Kesalahan: " + e.getMessage(),
                     Toast.LENGTH_LONG).show();
         }
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, arrayKontak);
+        daftarTelepon.setAdapter(adapter);
     }
 }
